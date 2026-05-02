@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>HOD Dashboard</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
+
+<style>
+body{
+    margin:0;
+    font-family:Arial;
+    color:white;
+    background:
+    linear-gradient(rgba(0,0,0,0.75),rgba(0,0,0,0.75)),
+    url("image/bg2.jpg") no-repeat center center/cover;
+    min-height:100vh;
+    overflow-x:hidden;
+}
+
+.dashboard{
+    display:flex;
+}
+
+/* Sidebar */
+.sidebar{
+    width:270px;
+    height:100vh;
+    position:fixed;
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(12px);
+    padding:30px;
+}
+
+.sidebar h3{
+    margin-bottom:30px;
+    font-size:24px;
+}
+
+.sidebar button{
+    width:100%;
+    padding:14px;
+    margin:10px 0;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    color:white;
+    font-weight:bold;
+    background:linear-gradient(45deg,#00c6ff,#0072ff);
+}
+
+/* Main */
+.main{
+    margin-left:320px;
+    width:100%;
+    padding:30px;
+}
+
+/* Glass */
+.glass{
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(12px);
+    border-radius:20px;
+    padding:30px;
+    min-height:90vh;
+}
+
+/* Profile */
+.profile-img{
+    width:100px;
+    height:100px;
+    border-radius:50%;
+}
+
+/* Stats cards */
+.stats-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:20px;
+    margin-top:30px;
+}
+
+.stat-card{
+    background:rgba(255,255,255,0.08);
+    padding:25px;
+    border-radius:15px;
+    text-align:center;
+    box-shadow:0 0 15px rgba(0,255,255,0.2);
+}
+
+/* Student Cards */
+.student-card{
+    background:rgba(255,255,255,0.08);
+    padding:20px;
+    margin:15px 0;
+    border-radius:15px;
+    cursor:pointer;
+    text-align:center;
+    box-shadow:0 0 15px rgba(0,255,255,0.2);
+}
+</style>
+</head>
+
+<body onload="checkAuth('hod'); showDashboardHome();">
+
+<div id="particles-js"></div>
+
+<div class="dashboard">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h3>👨‍🏫 HOD Portal</h3>
+
+        <button onclick="showDashboardHome()">🏠 Dashboard</button>
+        <button onclick="viewData()">👨‍🎓 Students</button>
+        <button onclick="toggleAttendance()">✅ Attendance Control</button>
+        <button onclick="showAttendanceReport()">📋 Attendance Report</button>
+        <button onclick="clearAll()">❌ Delete Records</button>
+        <button onclick="logout()">🚪 Logout</button>
+    </div>
+
+    <!-- Main -->
+    <div class="main">
+        <div class="glass">
+
+            <img src="image/hod.png" class="profile-img">
+
+            <h2>HOD Dashboard</h2>
+
+            <div id="data"></div>
+
+        </div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+
+<script>
+particlesJS("particles-js", {
+    particles:{
+        number:{value:60},
+        size:{value:3},
+        move:{speed:2},
+        line_linked:{enable:true}
+    }
+});
+
+
+// Dashboard Home
+function showDashboardHome() {
+    let students =
+        JSON.parse(localStorage.getItem("students")) || [];
+
+    let attendance =
+        JSON.parse(localStorage.getItem("attendanceData")) || {};
+
+    document.getElementById("data").innerHTML = `
+        <h2>📊 Dashboard Overview</h2>
+
+        <div class="stats-grid">
+
+            <div class="stat-card">
+                <h1>${students.length}</h1>
+                <p>Total Students</p>
+            </div>
+
+            <div class="stat-card">
+                <h1>${Object.keys(attendance).length}</h1>
+                <p>Attendance Records</p>
+            </div>
+
+            <div class="stat-card">
+                <h1>Active</h1>
+                <p>System Status</p>
+            </div>
+
+        </div>
+    `;
+}
+
+
+// Student List
+function viewData() {
+    let data =
+        JSON.parse(localStorage.getItem("students")) || [];
+
+    if(data.length===0){
+        document.getElementById("data").innerHTML =
+        "<h2>No Student Records Found</h2>";
+        return;
+    }
+
+    let output = `
+        <h2>👨‍🎓 Student List</h2>
+        <p>Click student to view full report</p>
+    `;
+
+    data.forEach((s,index)=>{
+        output += `
+        <div class="student-card"
+        onclick="showStudentDetails(${index})">
+
+            <h2>👤 ${s.name}</h2>
+            <p>${s.percentage}% Performance Record</p>
+
+        </div>
+        `;
+    });
+
+    document.getElementById("data").innerHTML = output;
+}
+
+
+// Student Full Details
+function showStudentDetails(index){
+    let data =
+        JSON.parse(localStorage.getItem("students")) || [];
+
+    let attendanceData =
+        JSON.parse(localStorage.getItem("attendanceData")) || {};
+
+    let s = data[index];
+
+    let attendance =
+        attendanceData[s.name] || {};
+
+    let output = `
+        <div class="student-card">
+
+            <h2>📋 Full Student Report</h2>
+
+            <h3>${s.name}</h3>
+
+            <p>Percentage: ${s.percentage}%</p>
+            <p>Performance: ${s.prediction}</p>
+            <p>Status: ${s.status}</p>
+
+            <hr>
+
+            <h3>Subject Attendance</h3>
+    `;
+
+    const subjects = [
+        "BCE-C621",
+        "BCE-C625",
+        "BCE-C661",
+        "BCE-M002",
+        "BCE-O633",
+        "BCE-P624"
+    ];
+
+    subjects.forEach(subject=>{
+        let count = attendance[subject] || 0;
+
+        output += `
+            <p>${subject}: ${count} Classes</p>
+        `;
+    });
+
+    output += `
+            <button onclick="viewData()">Back</button>
+
+            <button onclick="deleteStudent(${index})">
+                Delete
+            </button>
+        </div>
+    `;
+
+    document.getElementById("data").innerHTML = output;
+}
+
+
+// Attendance Report
+function showAttendanceReport(){
+    let attendanceData =
+        JSON.parse(localStorage.getItem("attendanceData")) || {};
+
+    let output = `<h2>📋 Subject Attendance Report</h2>`;
+
+    const subjects = [
+        "BCE-C621",
+        "BCE-C625",
+        "BCE-C661",
+        "BCE-M002",
+        "BCE-O633",
+        "BCE-P624"
+    ];
+
+    for(let student in attendanceData){
+
+        output += `
+        <div class="student-card">
+            <h3>${student}</h3>
+        `;
+
+        subjects.forEach(subject=>{
+            let count =
+                attendanceData[student][subject] || 0;
+
+            output += `
+                <p>${subject}: ${count} Classes</p>
+            `;
+        });
+
+        output += `</div>`;
+    }
+
+    document.getElementById("data").innerHTML = output;
+}
+
+
+// Delete Student
+function deleteStudent(index){
+    let data =
+        JSON.parse(localStorage.getItem("students")) || [];
+
+    data.splice(index,1);
+
+    localStorage.setItem(
+        "students",
+        JSON.stringify(data)
+    );
+
+    alert("Student deleted successfully");
+
+    viewData();
+}
+
+
+// Delete All
+function clearAll(){
+    if(confirm("Delete all records?")){
+        localStorage.removeItem("students");
+        localStorage.removeItem("attendanceData");
+
+        document.getElementById("data").innerHTML =
+        "<h2>All records deleted</h2>";
+    }
+}
+</script>
+
+</body>
+</html>

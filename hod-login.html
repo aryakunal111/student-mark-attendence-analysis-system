@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>HOD Login</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+height:100vh;
+display:flex;
+overflow:hidden;
+background:linear-gradient(
+135deg,
+#050816,
+#0f172a,
+#111827,
+#1e1b4b
+);
+color:white;
+position:relative;
+}
+
+/* Neon Glow Background */
+body::before{
+content:"";
+position:absolute;
+width:420px;
+height:420px;
+background:radial-gradient(circle,#8b5cf6,#4f46e5);
+border-radius:50%;
+top:-100px;
+left:-100px;
+filter:blur(130px);
+animation:move1 8s infinite alternate;
+}
+
+body::after{
+content:"";
+position:absolute;
+width:450px;
+height:450px;
+background:radial-gradient(circle,#00f7ff,#6366f1);
+border-radius:50%;
+bottom:-100px;
+right:-100px;
+filter:blur(140px);
+animation:move2 8s infinite alternate;
+}
+
+@keyframes move1{
+from{transform:translate(0,0);}
+to{transform:translate(120px,80px);}
+}
+
+@keyframes move2{
+from{transform:translate(0,0);}
+to{transform:translate(-100px,-70px);}
+}
+
+/* LEFT */
+.left{
+width:50%;
+display:flex;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+padding:50px;
+z-index:2;
+}
+
+.left h1{
+font-size:50px;
+margin-bottom:20px;
+}
+
+.left p{
+font-size:18px;
+color:#ddd;
+max-width:500px;
+text-align:center;
+line-height:1.7;
+}
+
+/* RIGHT */
+.right{
+width:50%;
+display:flex;
+justify-content:center;
+align-items:center;
+z-index:2;
+}
+
+.login-box{
+width:420px;
+padding:40px;
+background:rgba(255,255,255,0.08);
+backdrop-filter:blur(20px);
+border-radius:25px;
+box-shadow:
+0 0 25px rgba(138,43,226,0.3),
+0 0 50px rgba(99,102,241,0.2);
+}
+
+.login-box h2{
+text-align:center;
+margin-bottom:25px;
+font-size:32px;
+}
+
+input{
+width:100%;
+padding:14px;
+margin:12px 0;
+border:none;
+outline:none;
+border-radius:12px;
+background:rgba(255,255,255,0.1);
+color:white;
+}
+
+input::placeholder{
+color:#ccc;
+}
+
+button{
+width:100%;
+padding:14px;
+margin-top:15px;
+border:none;
+border-radius:12px;
+background:linear-gradient(45deg,#8b5cf6,#6366f1);
+color:white;
+font-size:18px;
+font-weight:bold;
+cursor:pointer;
+}
+
+.back-btn{
+background:rgba(255,255,255,0.15);
+}
+
+button:hover{
+transform:scale(1.03);
+transition:0.3s;
+}
+
+/* Mobile */
+@media(max-width:768px){
+body{
+flex-direction:column;
+}
+
+.left,.right{
+width:100%;
+height:50%;
+}
+
+.left h1{
+font-size:35px;
+}
+}
+</style>
+</head>
+
+<body>
+
+<div class="left">
+<h1>HOD Portal</h1>
+
+<p>
+Manage students, control attendance,
+analyze performance reports,
+and monitor academic records.
+</p>
+</div>
+
+<div class="right">
+<div class="login-box">
+
+<h2>HOD Login</h2>
+
+<input type="text" id="username2" placeholder="Enter Username">
+<input type="password" id="password2" placeholder="Enter Password">
+
+<button onclick="hodLogin()">Login</button>
+
+<!-- FIXED BACK BUTTON -->
+<button class="back-btn" onclick="window.location.href='index.html'">
+Back
+</button>
+
+</div>
+</div>
+
+<script>
+function hodLogin(){
+let u=document.getElementById("username2").value.trim();
+let p=document.getElementById("password2").value.trim();
+
+if(u==="hod" && p==="admin"){
+    localStorage.setItem("role","hod");
+    window.location.href="hod.html";
+}else{
+    alert("Invalid HOD Credentials");
+}
+}
+</script>
+
+</body>
+</html>

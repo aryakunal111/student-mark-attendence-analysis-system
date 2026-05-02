@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Dashboard</title>
+
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
+
+<style>
+body{
+    background:
+    linear-gradient(rgba(0,0,0,0.7),rgba(0,0,0,0.7)),
+    url("image/bg3.jpg") no-repeat center center/cover;
+    margin:0;
+    color:white;
+    overflow-x:hidden;
+}
+
+.dashboard{
+    display:flex;
+    min-height:100vh;
+}
+
+.sidebar{
+    width:260px;
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(12px);
+    padding:30px;
+    position:fixed;
+    height:100vh;
+}
+
+.sidebar h3{
+    margin-bottom:30px;
+}
+
+.sidebar button{
+    width:100%;
+    padding:14px;
+    margin:10px 0;
+    border:none;
+    border-radius:12px;
+    background:linear-gradient(45deg,#00c6ff,#0072ff);
+    color:white;
+    cursor:pointer;
+}
+
+.main{
+    margin-left:300px;
+    width:100%;
+    padding:30px;
+}
+
+.glass{
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(12px);
+    border-radius:20px;
+    padding:30px;
+}
+
+.profile-img{
+    width:100px;
+    height:100px;
+    border-radius:50%;
+    margin-bottom:20px;
+}
+
+.subject-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:20px;
+    margin-top:20px;
+}
+
+.subject-grid input{
+    padding:14px;
+    border:none;
+    border-radius:10px;
+}
+
+.chart-box{
+    margin-top:20px;
+}
+</style>
+</head>
+
+<body onload="checkAuth('student'); loadUser(); loadProfileImage(); showDashboardHome();">
+
+<div id="particles-js"></div>
+
+<div class="dashboard">
+
+    <div class="sidebar">
+        <h3>🎓 Student Portal</h3>
+
+        <button onclick="showDashboardHome()">🏠 Dashboard</button>
+
+        <button onclick="showMarksSection()">
+            📊 Marks Analysis
+        </button>
+
+        <button onclick="showAttendanceSection()">
+            📅 Attendance
+        </button>
+
+        <button onclick="logout()">🚪 Logout</button>
+    </div>
+
+    <div class="main">
+        <div class="glass">
+
+            <img id="profileImage" class="profile-img">
+
+            <h2>Student Dashboard</h2>
+            <p id="welcome"></p>
+
+            <div id="studentContent"></div>
+
+        </div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+
+<script>
+particlesJS("particles-js", {
+    particles: {
+        number: { value: 60 },
+        size: { value: 3 },
+        move: { speed: 2 },
+        line_linked: { enable: true }
+    }
+});
+
+// Load User
+function loadUser() {
+    let user = localStorage.getItem("user") || "Student";
+    document.getElementById("welcome").innerText =
+    "Welcome back, " + user;
+}
+
+// Load Profile Image
+function loadProfileImage() {
+    let user = localStorage.getItem("user");
+
+    let images = {
+        "st1": "image/student1.png",
+        "st2": "image/student2.png",
+        "st3": "image/student3.png",
+        "st4": "image/student4.png",
+        "st5": "image/student5.png",
+        "st6": "image/student6.png"
+    };
+
+    document.getElementById("profileImage").src =
+    images[user] || "image/default.png";
+}
+
+
+// Dashboard Home
+function showDashboardHome(){
+    document.getElementById("studentContent").innerHTML = `
+        <div class="student-card">
+            <h2>Welcome Student Dashboard</h2>
+            <p>Select an option from sidebar</p>
+        </div>
+    `;
+}
+
+
+// Marks Section
+function showMarksSection(){
+    document.getElementById("studentContent").innerHTML = `
+        <h2>Marks Analysis</h2>
+
+        <div class="subject-grid">
+            <input type="number" id="sub1" placeholder="BCE-C621">
+            <input type="number" id="sub2" placeholder="BCE-C625">
+            <input type="number" id="sub3" placeholder="BCE-C661">
+            <input type="number" id="sub4" placeholder="BCE-M002">
+            <input type="number" id="sub5" placeholder="BCE-O633">
+            <input type="number" id="sub6" placeholder="BCE-P624">
+        </div>
+
+        <button onclick="analyze()">
+            Analyze Performance
+        </button>
+
+        <div id="result"></div>
+
+        <div class="chart-box">
+            <canvas id="chart"></canvas>
+        </div>
+    `;
+}
+
+
+// FIXED Attendance Section
+function showAttendanceSection(){
+    document.getElementById("studentContent").innerHTML = `
+        <div class="student-card">
+            <h2>Subject Attendance</h2>
+            <p>Select subject to mark attendance</p>
+
+            <div class="subject-grid">
+
+                <button onclick="markAttendance('BCE-C621')">
+                    BCE-C621
+                </button>
+
+                <button onclick="markAttendance('BCE-C625')">
+                    BCE-C625
+                </button>
+
+                <button onclick="markAttendance('BCE-C661')">
+                    BCE-C661
+                </button>
+
+                <button onclick="markAttendance('BCE-M002')">
+                    BCE-M002
+                </button>
+
+                <button onclick="markAttendance('BCE-O633')">
+                    BCE-O633
+                </button>
+
+                <button onclick="markAttendance('BCE-P624')">
+                    BCE-P624
+                </button>
+
+            </div>
+        </div>
+    `;
+}
+
+
+// Analyze Function
+function analyze() {
+    let name = localStorage.getItem("user") || "Unknown";
+
+    let marks = [
+        +document.getElementById("sub1").value || 0,
+        +document.getElementById("sub2").value || 0,
+        +document.getElementById("sub3").value || 0,
+        +document.getElementById("sub4").value || 0,
+        +document.getElementById("sub5").value || 0,
+        +document.getElementById("sub6").value || 0
+    ];
+
+    let total = marks.reduce((a,b)=>a+b,0);
+    let percentage = total / marks.length;
+
+    let prediction = percentage >= 80 ? "Excellent" :
+                     percentage >= 60 ? "Good" :
+                     percentage >= 40 ? "Average" : "Poor";
+
+    let status = percentage >= 40 ? "Pass" : "Fail";
+
+    let data = JSON.parse(localStorage.getItem("students")) || [];
+
+    data.push({
+        name:name,
+        percentage:percentage.toFixed(2),
+        prediction:prediction,
+        status:status
+    });
+
+    localStorage.setItem("students", JSON.stringify(data));
+
+    document.getElementById("result").innerHTML = `
+        <div style="padding:20px;border-radius:15px;background:rgba(255,255,255,0.1);">
+            <h3>Performance Report</h3>
+            Name: ${name}<br>
+            Percentage: ${percentage.toFixed(2)}%<br>
+            Performance: ${prediction}<br>
+            Status: ${status}
+        </div>
+    `;
+
+    if(window.myChart){
+        window.myChart.destroy();
+    }
+
+    window.myChart = new Chart(
+        document.getElementById("chart"),
+        {
+            type:"bar",
+            data:{
+                labels:[
+                    "BCE-C621",
+                    "BCE-C625",
+                    "BCE-C661",
+                    "BCE-M002",
+                    "BCE-O633",
+                    "BCE-P624"
+                ],
+                datasets:[{
+                    label:"Marks",
+                    data:marks
+                }]
+            }
+        }
+    );
+}
+</script>
+
+</body>
+</html>
